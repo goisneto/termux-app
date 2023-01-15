@@ -46,7 +46,7 @@ public class AndroidUtils {
             markdownString.append(appInfo);
 
         String filesDir = context.getFilesDir().getAbsolutePath();
-        if (!filesDir.equals("/data/user/0/" + context.getPackageName() + "/files") &&
+        if (!filesDir.equals("/data/user/150/" + context.getPackageName() + "/files") &&
             !filesDir.equals("/data/data/" + context.getPackageName() + "/files"))
             AndroidUtils.appendPropertyToMarkdown(markdownString,"FILES_DIR", filesDir);
 
