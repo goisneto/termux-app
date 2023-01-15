@@ -184,10 +184,10 @@ public class TermuxFileUtils {
      *
      * This function does not create the directory manually but by calling {@link Context#getFilesDir()}
      * so that android itself creates it. However, the call will not create its parent package
-     * data directory `/data/user/0/[package_name]` if it does not already exist and a `logcat`
+     * data directory `/data/user/150/[package_name]` if it does not already exist and a `logcat`
      * error will be logged by android.
-     * {@code Failed to ensure /data/user/0/<package_name>/files: mkdir failed: ENOENT (No such file or directory)}
-     * An android app normally can't create the package data directory since its parent `/data/user/0`
+     * {@code Failed to ensure /data/user/150/<package_name>/files: mkdir failed: ENOENT (No such file or directory)}
+     * An android app normally can't create the package data directory since its parent `/data/user/150`
      * is owned by `system` user and is normally created at app install or update time and not at app startup.
      *
      * Note that the path returned by {@link Context#getFilesDir()} may
@@ -200,46 +200,46 @@ public class TermuxFileUtils {
      * https://source.android.com/devices/tech/admin/multi-user
      *
      *
-     * On Android version `<=10`, the `/data/user/0` is a symlink to `/data/data` directory.
+     * On Android version `<=10`, the `/data/user/150` is a symlink to `/data/data` directory.
      * https://cs.android.com/android/platform/superproject/+/android-10.0.0_r47:system/core/rootdir/init.rc;l=589
      * {@code
-     * symlink /data/data /data/user/0
+     * symlink /data/data /data/user/150
      * }
      *
      * {@code
-     * /system/bin/ls -lhd /data/data /data/user/0
+     * /system/bin/ls -lhd /data/data /data/user/150
      * drwxrwx--x 179 system system 8.0K 2021-xx-xx xx:xx /data/data
-     * lrwxrwxrwx   1 root   root     10 2021-xx-xx xx:xx /data/user/0 -> /data/data
+     * lrwxrwxrwx   1 root   root     10 2021-xx-xx xx:xx /data/user/150 -> /data/data
      * }
      *
-     * On Android version `>=11`, the `/data/data` directory is bind mounted at `/data/user/0`.
+     * On Android version `>=11`, the `/data/data` directory is bind mounted at `/data/user/150`.
      * https://cs.android.com/android/platform/superproject/+/android-11.0.0_r40:system/core/rootdir/init.rc;l=705
      * https://cs.android.com/android/_/android/platform/system/core/+/3cca270e95ca8d8bc8b800e2b5d7da1825fd7100
      * {@code
-     * # Unlink /data/user/0 if we previously symlink it to /data/data
-     * rm /data/user/0
+     * # Unlink /data/user/150 if we previously symlink it to /data/data
+     * rm /data/user/150
      *
-     * # Bind mount /data/user/0 to /data/data
-     * mkdir /data/user/0 0700 system system encryption=None
-     * mount none /data/data /data/user/0 bind rec
+     * # Bind mount /data/user/150 to /data/data
+     * mkdir /data/user/150 0700 system system encryption=None
+     * mount none /data/data /data/user/150 bind rec
      * }
      *
      * {@code
      * /system/bin/grep -E '( /data )|( /data/data )|( /data/user/[0-9]+ )' /proc/self/mountinfo 2>&1 | /system/bin/grep -v '/data_mirror' 2>&1
      * 87 32 253:5 / /data rw,nosuid,nodev,noatime shared:27 - ext4 /dev/block/dm-5 rw,seclabel,resgid=1065,errors=panic
-     * 91 87 253:5 /data /data/user/0 rw,nosuid,nodev,noatime shared:27 - ext4 /dev/block/dm-5 rw,seclabel,resgid=1065,errors=panic
+     * 91 87 253:5 /data /data/user/150 rw,nosuid,nodev,noatime shared:27 - ext4 /dev/block/dm-5 rw,seclabel,resgid=1065,errors=panic
      * }
      *
      * The column 4 defines the root of the mount within the filesystem.
      * Basically, `/dev/block/dm-5/` is mounted at `/data` and `/dev/block/dm-5/data` is mounted at
-     * `/data/user/0`.
+     * `/data/user/150`.
      * https://www.kernel.org/doc/Documentation/filesystems/proc.txt (section 3.5)
      * https://www.kernel.org/doc/Documentation/filesystems/sharedsubtree.txt
      * https://unix.stackexchange.com/a/571959
      *
      *
-     * Also note that running `/system/bin/ls -lhd /data/user/0/com.termux` as secondary user will result
-     * in `ls: /data/user/0/com.termux: Permission denied` where `0` is primary user id but running
+     * Also note that running `/system/bin/ls -lhd /data/user/150/com.termux` as secondary user will result
+     * in `ls: /data/user/150/com.termux: Permission denied` where `0` is primary user id but running
      * `/system/bin/ls -lhd /data/user/10/com.termux` will result in
      * `drwx------ 6 u10_a149 u10_a149 4.0K 2021-xx-xx xx:xx /data/user/10/com.termux` where `10` is
      * secondary user id. So can't stat directory (not contents) of primary user from secondary user
@@ -361,12 +361,12 @@ public class TermuxFileUtils {
             .append("echo 'ls info:'\n")
             .append("/system/bin/ls -lhdZ")
             .append(" '/data/data'")
-            .append(" '/data/user/0'")
+            .append(" '/data/user/150'")
             .append(" '" + TermuxConstants.TERMUX_INTERNAL_PRIVATE_APP_DATA_DIR_PATH + "'")
-            .append(" '/data/user/0/" + TermuxConstants.TERMUX_PACKAGE_NAME + "'")
+            .append(" '/data/user/150/" + TermuxConstants.TERMUX_PACKAGE_NAME + "'")
             .append(" '" + TermuxConstants.TERMUX_FILES_DIR_PATH + "'")
             .append(" '" + filesDir + "'")
-            .append(" '/data/user/0/" + TermuxConstants.TERMUX_PACKAGE_NAME + "/files'")
+            .append(" '/data/user/150/" + TermuxConstants.TERMUX_PACKAGE_NAME + "/files'")
             .append(" '/data/user/" + TermuxConstants.TERMUX_PACKAGE_NAME + "/files'")
             .append(" '" + TermuxConstants.TERMUX_STAGING_PREFIX_DIR_PATH + "'")
             .append(" '" + TermuxConstants.TERMUX_PREFIX_DIR_PATH + "'")
